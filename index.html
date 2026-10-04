@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Body Garden</title>
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Body Garden">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FBF7F3">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF7F3; --card:#FFFFFF; --ink:#4A3631; --muted:#7A625B; --faint:#9C847D;
+    --rose:#8E4F48; --rose-dark:#6E3832; --blush:#D9A79D; --blush-soft:#F5E6E1;
+    --bud:#E8C3BA; --gold:#C99A6B; --leaf:#A8B39A; --line:#F2E9E2; --soil:#E9DDD3;
+    --sand:#F6EEE6; --dash:#DCC8BA;
+    --serif:'Cormorant Garamond', Georgia, serif; --sans:'DM Sans', system-ui, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  button{font-family:var(--sans);color:inherit}
+  a{color:var(--rose)} a:hover{color:var(--rose-dark)}
+  .wrap{max-width:480px;margin:0 auto;padding:0 16px calc(110px + env(safe-area-inset-bottom))}
+  header{padding:40px 8px 0}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  h1{margin:4px 0 0;font-family:var(--serif);font-weight:500;font-size:38px;line-height:1.1}
+  h2{margin:0;font-family:var(--serif);font-weight:600;font-size:24px}
+  .sub{font-family:var(--serif);font-style:italic;font-size:18px;color:var(--rose);margin-top:4px}
+  .card{background:var(--card);border-radius:24px;padding:20px;margin-top:20px;box-shadow:0 1px 0 #EFE3D8,0 12px 32px rgba(150,100,90,.08)}
+  .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .chip{font-size:12px;color:var(--muted);background:var(--blush-soft);padding:4px 10px;border-radius:999px;white-space:nowrap}
+
+  /* Today list */
+  .move{display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .move:last-child{border-bottom:none}
+  .tick{width:44px;height:44px;flex-shrink:0;border:none;background:transparent;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .tick:focus-visible,.btn:focus-visible,.navbtn:focus-visible,.iconbtn:focus-visible{outline:2px solid var(--rose);outline-offset:2px}
+  .mv-text{flex-grow:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+  .mv-name{font-size:16px;font-weight:500}
+  .mv-detail{font-size:13px;color:var(--muted)}
+  .mv-link{font-size:13px;font-weight:500;text-decoration:none;padding:12px 0 12px 8px}
+  .empty{font-size:14px;color:var(--muted);padding:8px 0}
+
+  label.lbl{display:block;font-size:13px;font-weight:500;color:var(--muted);margin:18px 0 8px 4px}
+  textarea{width:100%;resize:none;border:1px solid #EADCD2;background:var(--card);border-radius:16px;padding:12px 14px;font-family:var(--sans);font-size:16px;color:var(--ink)}
+  textarea::placeholder{color:var(--faint)}
+  textarea:focus{outline:2px solid var(--blush);outline-offset:0}
+
+  .btn{width:100%;min-height:56px;border:none;border-radius:999px;background:var(--rose);color:#fff;font-size:16px;font-weight:600;letter-spacing:.02em;cursor:pointer;margin-top:16px}
+  .btn:disabled{background:#D9C6BE;cursor:default}
+  .btn.ghost{background:transparent;color:var(--rose);min-height:48px;font-weight:500;margin-top:4px}
+  .planted{min-height:56px;border-radius:999px;background:var(--blush-soft);display:flex;align-items:center;justify-content:center;gap:10px;font-size:15px;font-weight:500;color:var(--rose);margin-top:16px;padding:8px 16px;text-align:center}
+
+  /* Garden */
+  .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+  .stat{background:var(--card);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:6px}
+  .big{font-family:var(--serif);font-size:40px;font-weight:600;line-height:1;color:var(--rose)}
+  .small{font-size:13px;color:var(--muted)}
+  .dots{display:flex;gap:6px;flex-wrap:wrap}
+  .dot{width:22px;height:22px;border-radius:50%}
+  .dot.on{background:var(--blush)}
+  .dot.off{border:1.5px dashed #D8C3B8}
+  .monthbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .monthbar h2{font-size:22px}
+  .iconbtn{width:44px;height:44px;border:none;background:transparent;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--rose)}
+  .iconbtn:disabled{color:#D8C3B8;cursor:default}
+  .grid7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+  .dow{text-align:center;font-size:11px;color:var(--faint);margin-bottom:4px}
+  .cell{height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:none;background:transparent;padding:0;border-radius:12px;font-family:var(--sans)}
+  button.cell{cursor:pointer}
+  .cell.today{box-shadow:inset 0 0 0 1.5px var(--blush)}
+  .cell.sel{background:var(--blush-soft)}
+  .cell .n{font-size:10px;color:var(--faint)}
+  .soil{width:6px;height:6px;border-radius:50%;background:var(--soil);margin:12px 0}
+  .soil.future{background:transparent}
+  .daynote{margin-top:12px;padding:12px 14px;border-radius:16px;background:var(--bg);font-size:14px;line-height:1.5}
+  .note{background:var(--card);border-radius:16px;padding:12px 14px;margin-top:8px}
+  .note .d{font-size:12px;color:var(--muted)}
+  .note .t{font-size:15px;margin-top:2px;line-height:1.45;white-space:pre-wrap}
+  .section-title{margin:24px 0 0 4px;font-family:var(--serif);font-weight:600;font-size:22px}
+
+  /* Seasons */
+  .season{border-radius:24px;padding:20px;margin-top:14px;display:flex;flex-direction:column;gap:10px}
+  .season.now{background:var(--card);box-shadow:0 12px 32px rgba(150,100,90,.08)}
+  .season.next,.season.later{background:var(--sand);border:1px dashed var(--dash)}
+  .season.done{background:var(--blush-soft)}
+  .s-label{font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .season.now .s-label{color:var(--rose)}
+  .s-name{margin:0;font-family:var(--serif);font-weight:600;font-size:28px}
+  .season.next .s-name,.season.later .s-name{color:#6B554F}
+  .s-focus{font-size:14px;color:var(--muted);line-height:1.5}
+  .pills{display:flex;flex-wrap:wrap;gap:8px}
+  .pill{font-size:13px;padding:6px 12px;border-radius:999px;background:var(--blush-soft);color:var(--rose-dark)}
+  .verse{margin:28px 16px 0;text-align:center;font-family:var(--serif);font-style:italic;font-size:18px;line-height:1.4;color:var(--rose)}
+  .verse small{display:block;font-family:var(--sans);font-style:normal;font-size:12px;color:var(--muted);margin-top:6px}
+
+  /* Nav */
+  nav{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom));width:calc(100% - 32px);max-width:448px;background:var(--card);border-radius:999px;display:flex;padding:6px;box-shadow:0 8px 24px rgba(150,100,90,.14);z-index:5}
+  .navbtn{flex:1;min-height:44px;border:none;background:transparent;border-radius:999px;font-size:14px;font-weight:500;color:var(--muted);cursor:pointer}
+  .navbtn[aria-current="page"]{background:var(--blush-soft);color:var(--rose);font-weight:600}
+
+  /* Welcome back */
+  .welcome{position:fixed;inset:0;background:#F7EDE7;z-index:10;display:flex;flex-direction:column;align-items:center;text-align:center;padding:72px 28px calc(32px + env(safe-area-inset-bottom));overflow-y:auto}
+  .welcome h1{font-size:40px;margin-top:16px}
+  .welcome p{font-size:16px;line-height:1.55;color:#6B554F;margin:16px 0 0}
+  .welcome .strip{display:flex;gap:10px;align-items:center;justify-content:center;padding:14px 18px;background:var(--card);border-radius:999px;margin-top:20px}
+  .welcome .grow{flex-grow:1;min-height:24px}
+  .welcome .inner{max-width:420px;width:100%;display:flex;flex-direction:column;align-items:center;flex-grow:1}
+
+  .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;min-height:80vh;color:var(--muted);font-family:var(--serif);font-style:italic;font-size:20px}
+  .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:var(--ink);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;z-index:20;max-width:calc(100% - 32px);text-align:center}
+  [hidden]{display:none !important}
+  @keyframes grow{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+  .pop{animation:grow .5s cubic-bezier(.2,.9,.3,1.3)}
+  @media (prefers-reduced-motion:reduce){.pop{animation:none}}
+</style>
+</head>
+<body>
+
+<div id="loading" class="loading">
+  <span id="loadIcon"></span>
+  <span id="loadText">Watering the garden…</span>
+  <button class="btn" type="button" id="retry" hidden style="max-width:240px">Try again</button>
+</div>
+
+<!-- CONNECT (first time on a device) -->
+<form id="connect" class="welcome" hidden aria-labelledby="c-title">
+  <div class="inner">
+    <span id="c-flower"></span>
+    <h1 id="c-title">Connect your garden</h1>
+    <p>Type your App key once. You'll find it in your Body Garden sheet, on the <strong>Settings</strong> tab.</p>
+    <label class="lbl" for="c-key" style="align-self:flex-start;margin-top:28px">App key</label>
+    <input id="c-key" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="e.g. k7m2-p9xq-4hts"
+      style="width:100%;min-height:52px;border:1px solid #EADCD2;background:#fff;border-radius:16px;padding:12px 14px;font-family:var(--sans);font-size:18px;color:var(--ink);letter-spacing:.04em">
+    <div id="c-err" class="small" role="alert" style="color:#9B3B33;margin-top:10px;align-self:flex-start" hidden>That key didn't match. Check the Settings tab and try again.</div>
+    <div class="grow"></div>
+    <button class="btn" type="submit" id="c-go">Open my garden</button>
+  </div>
+</form>
+
+<main id="app" class="wrap" hidden>
+  <!-- TODAY -->
+  <section id="v-today" aria-labelledby="t-hello">
+    <header>
+      <div class="eyebrow" id="t-date"></div>
+      <h1 id="t-hello"></h1>
+      <div class="sub" id="t-sub"></div>
+    </header>
+    <div class="card">
+      <div class="row">
+        <h2>Today's gentle flow</h2>
+        <span class="chip" id="t-chip"></span>
+      </div>
+      <div id="t-list"></div>
+    </div>
+    <label class="lbl" for="t-note">How did your body feel?</label>
+    <textarea id="t-note" rows="2" placeholder="e.g. scar felt a little softer today"></textarea>
+    <div id="t-planted" class="planted" hidden></div>
+    <button id="t-btn" class="btn" type="button"></button>
+  </section>
+
+  <!-- GARDEN -->
+  <section id="v-garden" hidden aria-labelledby="g-title">
+    <header>
+      <div class="eyebrow">Every morning counts</div>
+      <h1 id="g-title">Your garden</h1>
+    </header>
+    <div class="stats">
+      <div class="stat">
+        <div class="big" id="g-total"></div>
+        <div class="small" id="g-total-lbl"></div>
+      </div>
+      <div class="stat">
+        <div class="small">This week's rhythm</div>
+        <div class="dots" id="g-week"></div>
+        <div style="font-size:13px" id="g-week-lbl"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="monthbar">
+        <button class="iconbtn" id="g-prev" type="button" aria-label="Previous month">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <h2 id="g-month"></h2>
+        <button class="iconbtn" id="g-next" type="button" aria-label="Next month">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+      </div>
+      <div class="grid7"><div class="dow">M</div><div class="dow">T</div><div class="dow">W</div><div class="dow">T</div><div class="dow">F</div><div class="dow">S</div><div class="dow">S</div></div>
+      <div class="grid7" id="g-cal"></div>
+      <div class="daynote" id="g-daynote" hidden></div>
+    </div>
+    <div class="section-title">Body notes</div>
+    <div id="g-notes"></div>
+  </section>
+
+  <!-- SEASONS -->
+  <section id="v-seasons" hidden aria-labelledby="s-title">
+    <header>
+      <div class="eyebrow">Your recovery</div>
+      <h1 id="s-title">Seasons</h1>
+      <div class="small" style="font-size:14px;margin-top:4px">No deadlines. A season opens when your body is ready.</div>
+    </header>
+    <div id="s-list"></div>
+    <div class="verse">“Let us not grow weary of doing good, for in due season we will reap, if we do not give up.”<small>Galatians 6:9</small></div>
+  </section>
+</main>
+
+<nav id="nav" aria-label="Main" hidden>
+  <button class="navbtn" type="button" data-view="today" aria-current="page">Today</button>
+  <button class="navbtn" type="button" data-view="garden">Garden</button>
+  <button class="navbtn" type="button" data-view="seasons">Seasons</button>
+</nav>
+
+<!-- WELCOME BACK -->
+<div class="welcome" id="welcome" hidden role="dialog" aria-modal="true" aria-labelledby="w-title">
+  <div class="inner">
+    <span id="w-flower"></span>
+    <h1 id="w-title"></h1>
+    <p id="w-text"></p>
+    <div class="strip" id="w-strip" aria-hidden="true"></div>
+    <div class="verse" style="margin-top:28px">“His mercies never come to an end; they are new every morning.”<small>Lamentations 3:22–23</small></div>
+    <div class="grow"></div>
+    <button class="btn" type="button" id="w-start">Start gently today</button>
+    <button class="btn ghost" type="button" id="w-breathe">Just breathing today · 2 min</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+/* ---------- Your Apps Script link ----------
+   Paste your Web app URL (ends in /exec) between the quotes. */
+var API_URL = 'PASTE_YOUR_WEB_APP_URL_HERE';
+
+/* ---------- Little drawings ---------- */
+function bloomSvg(size){
+  var p='';
+  for(var i=0;i<5;i++) p+='<ellipse cx="20" cy="10" rx="6" ry="9" transform="rotate('+(i*72)+' 20 20)"/>';
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 40 40" aria-hidden="true"><g fill="#D9A79D">'+p+'</g><circle cx="20" cy="20" r="4.5" fill="#C99A6B"/></svg>';
+}
+function budSvg(size){
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34V22" stroke="#A8B39A" stroke-width="2" stroke-linecap="round"/><path d="M20 28c-4 0-6-2-6-4 3 0 5 2 6 4z" fill="#B7C1A9"/><ellipse cx="20" cy="17" rx="6" ry="8" fill="#E8C3BA"/></svg>';
+}
+function welcomeFlower(){
+  var p='';
+  for(var i=0;i<5;i++) p+='<ellipse cx="20" cy="9" rx="5" ry="7.5" transform="rotate('+(i*72)+' 20 17)"/>';
+  return '<svg width="88" height="88" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 38V24" stroke="#A8B39A" stroke-width="1.6" stroke-linecap="round"/><path d="M20 31c-5-1-7-4-7-6 4 0 6 3 7 6z" fill="#B7C1A9"/><g fill="#D9A79D">'+p+'</g><circle cx="20" cy="17" r="3.8" fill="#C99A6B"/></svg>';
+}
+var TICK_ON='<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#D9A79D"/><path d="M10 16.5l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var TICK_OFF='<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="14.5" fill="none" stroke="#D8C3B8" stroke-width="1.5"/></svg>';
+
+/* ---------- Helpers ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function $(id){return document.getElementById(id);}
+var MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function parse(s){var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2]);}
+function pad(n){return (n<10?'0':'')+n;}
+function key(y,m,d){return y+'-'+pad(m+1)+'-'+pad(d);}
+function prettyShort(s){var d=parse(s);return DAYS[d.getDay()].slice(0,3)+' '+d.getDate()+' '+MONTHS[d.getMonth()].slice(0,3);}
+function safeUrl(u){return /^https?:\/\//i.test(u)?u:'';}
+
+var SUBS=['Gentle and steady. Even one counts.','Small and faithful is enough.','Your body is healing. Be kind to it.','One breath at a time.','Nothing to catch up on. Just today.'];
+
+/* ---------- State ---------- */
+var S=null, view='today', checked={}, cursor=null, selDay=null, busy=false;
+
+/* ---------- Talking to your Google Sheet ---------- */
+function getKey(){ try{ return localStorage.getItem('bodyGardenKey')||''; }catch(e){ return ''; } }
+function setKey(k){ try{ localStorage.setItem('bodyGardenKey',k); }catch(e){} }
+
+function run(fn,arg,ok){
+  function fail(msg){
+    busy=false;
+    if(S){ renderAll(); toast(msg); }
+    else { $('connect').hidden=true; $('loading').hidden=false; $('loadText').textContent=msg; $('retry').hidden=false; }
+  }
+  var req;
+  if(fn==='getState'){
+    req=fetch(API_URL+'?action=getState&key='+encodeURIComponent(getKey())+'&t='+Date.now());
+  } else {
+    // text/plain keeps this a "simple" request that Apps Script accepts
+    req=fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({action:fn,key:getKey(),arg:arg})});
+  }
+  req.then(function(r){ return r.json(); })
+    .then(function(res){
+      if(res&&res.ok){ ok(res.data); return; }
+      if(res&&res.error==='BAD_KEY'){ busy=false; showConnect(true); return; }
+      fail((res&&res.error)||'Something went wrong. Please try again.');
+    })
+    .catch(function(){ fail('Couldn’t reach your garden. Check your connection and try again.'); });
+}
+
+function showConnect(wrong){
+  $('loading').hidden=true; $('app').hidden=true; $('nav').hidden=true; $('welcome').hidden=true;
+  $('c-flower').innerHTML=welcomeFlower();
+  $('c-err').hidden=!wrong;
+  $('c-key').value=wrong?getKey():'';
+  $('c-go').disabled=false; $('c-go').textContent='Open my garden';
+  $('connect').hidden=false;
+}
+$('connect').addEventListener('submit',function(ev){
+  ev.preventDefault();
+  var k=$('c-key').value.trim().toLowerCase();
+  if(!k){ $('c-key').focus(); return; }
+  setKey(k);
+  $('c-go').disabled=true; $('c-go').textContent='Opening…';
+  load();
+});
+$('retry').addEventListener('click',load);
+
+function load(){
+  $('loadIcon').innerHTML=bloomSvg(48);
+  if(/PASTE_YOUR/.test(API_URL)){
+    $('loadText').textContent='Almost there: paste your Web app URL into index.html (line with API_URL).';
+    return;
+  }
+  if(!getKey()){ showConnect(false); return; }
+  $('loadText').textContent='Watering the garden…'; $('retry').hidden=true;
+  run('getState',undefined,function(s){
+    S=s; resetToday();
+    var t=parse(S.today); cursor={y:t.getFullYear(),m:t.getMonth()};
+    $('connect').hidden=true; $('loading').hidden=true; $('app').hidden=false; $('nav').hidden=false;
+    renderAll(); maybeWelcome();
+  });
+}
+
+function resetToday(){
+  checked={};
+  if(S.todayLog){ S.todayLog.done.forEach(function(n){checked[n]=true;}); }
+  $('t-note').value=S.todayLog?S.todayLog.note:'';
+}
+
+function renderAll(){ renderToday(); renderGarden(); renderSeasons(); }
+
+/* ---------- Today ---------- */
+function countChecked(){var c=0;S.exercises.forEach(function(e){if(checked[e.name])c++;});return c;}
+function needed(){return Math.min(S.bloomAt,S.exercises.length||S.bloomAt);}
+function isChanged(){
+  if(!S.todayLog) return true;
+  var a=S.exercises.filter(function(e){return checked[e.name];}).map(function(e){return e.name;}).sort().join('|');
+  var b=S.todayLog.done.slice().sort().join('|');
+  return a!==b || $('t-note').value.trim()!==(S.todayLog.note||'').trim();
+}
+
+function renderToday(){
+  var d=parse(S.today), h=new Date().getHours();
+  $('t-date').textContent=DAYS[d.getDay()]+' · '+d.getDate()+' '+MONTHS[d.getMonth()];
+  $('t-hello').textContent=(h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', '+S.name;
+  $('t-sub').textContent=SUBS[d.getDate()%SUBS.length];
+  $('t-chip').textContent='Season '+S.season.num;
+
+  var html='';
+  if(!S.exercises.length) html='<div class="empty">No moves for this season yet. Add them in the Exercises sheet.</div>';
+  S.exercises.forEach(function(e,i){
+    var on=!!checked[e.name], link=safeUrl(e.link);
+    html+='<div class="move">'+
+      '<button class="tick" type="button" data-i="'+i+'" aria-pressed="'+on+'" aria-label="'+esc(e.name)+'">'+(on?TICK_ON:TICK_OFF)+'</button>'+
+      '<div class="mv-text"><div class="mv-name">'+esc(e.name)+'</div>'+(e.detail?'<div class="mv-detail">'+esc(e.detail)+'</div>':'')+'</div>'+
+      (link?'<a class="mv-link" href="'+esc(link)+'" target="_blank" rel="noopener">Video</a>':'')+
+    '</div>';
+  });
+  $('t-list').innerHTML=html;
+
+  var c=countChecked(), full=c>=needed(), btn=$('t-btn'), pl=$('t-planted');
+  if(S.todayLog){
+    pl.hidden=false;
+    pl.innerHTML=(S.todayLog.flower==='Bloom'?bloomSvg(22):budSvg(22))+'<span>'+
+      (S.todayLog.flower==='Bloom'?'A full bloom, planted. ':'A little bud, planted. It still counts. ')+
+      esc(S.total)+' in your garden.</span>';
+  } else pl.hidden=true;
+
+  if(busy){btn.disabled=true;btn.textContent='Planting…';btn.hidden=false;return;}
+  if(c===0){btn.disabled=true;btn.textContent='Tick any one to plant';btn.hidden=false;return;}
+  btn.disabled=false;
+  if(S.todayLog){
+    btn.hidden=!isChanged();
+    btn.textContent="Update today's flower";
+  } else {
+    btn.hidden=false;
+    btn.textContent=full?'Plant a full bloom':'Plant a little bud';
+  }
+}
+
+$('t-list').addEventListener('click',function(ev){
+  var b=ev.target.closest('.tick'); if(!b) return;
+  var e=S.exercises[+b.getAttribute('data-i')];
+  checked[e.name]=!checked[e.name];
+  renderToday();
+  var again=$('t-list').querySelector('[data-i="'+b.getAttribute('data-i')+'"]'); if(again) again.focus();
+});
+$('t-note').addEventListener('input',function(){ if(S.todayLog) renderToday(); });
+$('t-btn').addEventListener('click',function(){
+  if(busy) return;
+  var done=S.exercises.filter(function(e){return checked[e.name];}).map(function(e){return e.name;});
+  if(!done.length) return;
+  var wasNew=!S.todayLog;
+  busy=true; renderToday();
+  run('plantToday',{done:done,note:$('t-note').value.trim()},function(s){
+    busy=false; S=s; resetToday(); renderAll();
+    var pl=$('t-planted'); pl.classList.remove('pop'); void pl.offsetWidth; pl.classList.add('pop');
+    toast(wasNew?'Planted. Well done, '+S.name+'.':'Today’s flower updated.');
+  });
+});
+
+/* ---------- Garden ---------- */
+function renderGarden(){
+  $('g-total').textContent=S.total;
+  $('g-total-lbl').textContent=(S.total===1?'morning':'mornings')+' for your body, in total';
+
+  var w='', n=Math.max(S.rhythm,S.weekCount);
+  for(var i=0;i<n;i++) w+='<span class="dot '+(i<S.weekCount?'on':'off')+'"></span>';
+  $('g-week').innerHTML=w;
+  $('g-week').setAttribute('aria-label',S.weekCount+' of '+S.rhythm+' this week');
+  var lbl = S.weekCount===0?'A fresh week':
+            S.weekCount>=S.rhythm?S.weekCount+' of '+S.rhythm+' · a good week':
+            S.weekCount+' of '+S.rhythm+' · lovely, keep it gentle';
+  $('g-week-lbl').textContent=lbl;
+
+  var map={}; S.logs.forEach(function(l){map[l.date]=l;});
+  var y=cursor.y,m=cursor.m;
+  $('g-month').textContent=MONTHS[m]+' '+y;
+  var t=parse(S.today);
+  $('g-next').disabled=(y>t.getFullYear()||(y===t.getFullYear()&&m>=t.getMonth()));
+  var first=S.logs.length?parse(S.logs[0].date):t;
+  $('g-prev').disabled=(y<first.getFullYear()||(y===first.getFullYear()&&m<=first.getMonth()));
+
+  var lead=(new Date(y,m,1).getDay()+6)%7, dim=new Date(y,m+1,0).getDate(), h='';
+  for(var b=0;b<lead;b++) h+='<div class="cell"></div>';
+  for(var d=1;d<=dim;d++){
+    var k=key(y,m,d), l=map[k], cls='cell'+(k===S.today?' today':'')+(k===selDay?' sel':'');
+    if(l){
+      h+='<button type="button" class="'+cls+'" data-k="'+k+'" aria-label="'+d+' '+MONTHS[m]+', '+(l.flower==='Bloom'?'full bloom':'little bud')+'">'+
+        (l.flower==='Bloom'?bloomSvg(30):budSvg(30))+'<span class="n">'+d+'</span></button>';
+    } else {
+      h+='<div class="'+cls+'"><span class="soil'+(k>S.today?' future':'')+'"></span><span class="n">'+d+'</span></div>';
+    }
+  }
+  $('g-cal').innerHTML=h;
+
+  var dn=$('g-daynote');
+  if(selDay&&map[selDay]){
+    var sl=map[selDay];
+    dn.hidden=false;
+    dn.innerHTML='<strong>'+esc(prettyShort(selDay))+'</strong> · '+(sl.flower==='Bloom'?'full bloom':'little bud')+' · '+sl.count+(sl.count===1?' move':' moves')+
+      (sl.note?'<div style="margin-top:4px">'+esc(sl.note)+'</div>':'');
+  } else dn.hidden=true;
+
+  var notes=S.logs.filter(function(l){return l.note;}).slice(-10).reverse(), nh='';
+  if(!notes.length) nh='<div class="note"><div class="t" style="color:var(--muted)">Your notes will gather here. They are the best proof of healing.</div></div>';
+  notes.forEach(function(l){ nh+='<div class="note"><div class="d">'+esc(prettyShort(l.date))+'</div><div class="t">'+esc(l.note)+'</div></div>'; });
+  $('g-notes').innerHTML=nh;
+}
+$('g-cal').addEventListener('click',function(ev){
+  var b=ev.target.closest('button.cell'); if(!b) return;
+  var k=b.getAttribute('data-k'); selDay=(selDay===k)?null:k; renderGarden();
+});
+$('g-prev').addEventListener('click',function(){cursor.m--; if(cursor.m<0){cursor.m=11;cursor.y--;} selDay=null; renderGarden();});
+$('g-next').addEventListener('click',function(){cursor.m++; if(cursor.m>11){cursor.m=0;cursor.y++;} selDay=null; renderGarden();});
+
+/* ---------- Seasons ---------- */
+function renderSeasons(){
+  var h='';
+  S.seasons.forEach(function(s){
+    var st=s.status.toLowerCase(); if(['now','next','later','done'].indexOf(st)<0) st='later';
+    var label={now:'Now',next:'Next',later:'Later',done:'Completed'}[st];
+    var name=s.name||'Not named yet';
+    h+='<div class="season '+st+'">'+
+      '<div class="row"><span class="s-label">Season '+esc(s.num)+' · '+label+'</span>'+
+      (s.openedOn?'<span class="small">from '+esc(prettyShort(s.openedOn))+'</span>':'')+'</div>'+
+      '<h2 class="s-name"'+(s.name?'':' style="font-style:italic;font-weight:500"')+'>'+esc(name)+'</h2>'+
+      (s.focus?'<div class="s-focus">'+esc(s.focus)+'</div>':'');
+    if(st==='now'){
+      h+='<div class="pills">'+S.exercises.map(function(e){return '<span class="pill">'+esc(e.name)+'</span>';}).join('')+'</div>'+
+         '<div class="small">'+s.flowers+(s.flowers===1?' flower':' flowers')+' planted this season</div>';
+    }
+    if(st==='done') h+='<div class="small">'+s.flowers+(s.flowers===1?' flower':' flowers')+' planted</div>';
+    if(s.note&&st!=='done') h+='<div class="small" style="color:#6B554F;line-height:1.5">'+esc(s.note)+'</div>';
+    if(st==='next') h+='<button class="btn" type="button" data-open="'+esc(s.num)+'" style="margin-top:6px">Open this season</button>';
+    h+='</div>';
+  });
+  $('s-list').innerHTML=h;
+}
+$('s-list').addEventListener('click',function(ev){
+  var b=ev.target.closest('[data-open]'); if(!b||busy) return;
+  var n=b.getAttribute('data-open');
+  if(!confirm('Open Season '+n+'? Your Today list will switch to its moves. Your garden stays as it is.')) return;
+  busy=true; b.disabled=true; b.textContent='Opening…';
+  run('openSeason',n,function(s){ busy=false; S=s; resetToday(); renderAll(); toast('A new season has begun.'); });
+});
+
+/* ---------- Nav ---------- */
+function show(v){
+  view=v;
+  ['today','garden','seasons'].forEach(function(x){ $('v-'+x).hidden=(x!==v); });
+  document.querySelectorAll('.navbtn').forEach(function(b){
+    if(b.getAttribute('data-view')===v) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+  window.scrollTo(0,0);
+}
+$('nav').addEventListener('click',function(ev){var b=ev.target.closest('.navbtn'); if(b) show(b.getAttribute('data-view'));});
+
+/* ---------- Welcome back ---------- */
+function maybeWelcome(){
+  if(S.todayLog||!S.total||S.daysSinceLast===null||S.daysSinceLast<3) return;
+  $('w-flower').innerHTML=welcomeFlower();
+  $('w-title').textContent='Welcome back, '+S.name;
+  $('w-text').innerHTML='Your garden is right where you left it.<br>'+S.total+(S.total===1?' flower':' flowers')+' so far, and none of them went anywhere.';
+  var map={}; S.logs.forEach(function(l){map[l.date]=l;});
+  var t=parse(S.today), strip='';
+  for(var i=6;i>=1;i--){
+    var d=new Date(t.getFullYear(),t.getMonth(),t.getDate()-i), l=map[key(d.getFullYear(),d.getMonth(),d.getDate())];
+    strip+= l ? '<span class="dot on" style="width:14px;height:14px;'+(l.flower==='Bud'?'background:#E8C3BA':'')+'"></span>'
+              : '<span style="width:6px;height:6px;border-radius:50%;background:#E2D3C8"></span>';
+  }
+  strip+='<span class="dot off" style="width:14px;height:14px"></span>';
+  $('w-strip').innerHTML=strip;
+  $('welcome').hidden=false;
+  $('w-start').focus();
+}
+function closeWelcome(){ $('welcome').hidden=true; show('today'); }
+$('w-start').addEventListener('click',closeWelcome);
+$('w-breathe').addEventListener('click',function(){
+  if(S.exercises.length){ checked={}; checked[S.exercises[0].name]=true; }
+  closeWelcome(); renderToday();
+});
+
+/* ---------- Toast ---------- */
+var toastT=null;
+function toast(msg){var t=$('toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){t.hidden=true;},2800);}
+
+load();
+</script>
+</body>
+</html>
